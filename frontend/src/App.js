@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { auth } from './utils/firebase'; 
 import { onAuthStateChanged } from 'firebase/auth';
 import Header from './components/Header';
@@ -7,7 +7,6 @@ import Sidebar from './components/Sidebar';
 import CaseInput from './components/CaseInput';
 import IndicatorList from './components/IndicatorList';
 import ChatHistory from './components/ChatHistory';
-import AuthButton from './components/AuthButton';
 import { useAuth } from './hooks/useAuth';
 import { useCase } from './hooks/useCase';
 import { useIndicators } from './hooks/useIndicators';
@@ -25,7 +24,6 @@ function App() {
       setUser(user);
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -35,26 +33,14 @@ function App() {
 
   return (
     <Router>
-      <div className="App">
-        <Header>
-          <AuthButton user={user} onSignIn={signIn} onSignOut={signOut} />
-        </Header>
-        <div className="main-content">
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex h-screen pt-16">
           <Sidebar user={user} />
-          <Routes>
-            <Route path="/" element={
-              user ? (
-                <Navigate to="/dashboard" replace />
-              ) : (
-                <div className="welcome">
-                  <h1>Welcome to Child Welfare Indicators</h1>
-                  <p>Please sign in to access the dashboard.</p>
-                </div>
-              )
-            } />
-            <Route path="/dashboard" element={
-              user ? (
-                <div className="dashboard">
+          <main className="flex-1 p-6 overflow-y-auto">
+            <Routes>
+              <Route path="/" element={
+                <div className="max-w-4xl mx-auto space-y-6">
                   <CaseInput 
                     onSubmit={createCase} 
                     currentCase={currentCase}
@@ -65,16 +51,31 @@ function App() {
                     onUpdateIndicator={updateIndicator}
                     onRemoveIndicator={removeIndicator}
                   />
-                  <ChatHistory 
-                    caseId={currentCase?.id}
-                    onSelectCase={selectCase}
-                  />
+                  {user && (
+                    <ChatHistory 
+                      caseId={currentCase?.id}
+                      onSelectCase={selectCase}
+                    />
+                  )}
                 </div>
-              ) : (
-                <Navigate to="/" replace />
-              )
-            } />
-          </Routes>
+              } />
+              <Route path="/dashboard" element={
+                <div className="max-w-4xl mx-auto space-y-6">
+                  <h1 className="text-2xl font-bold">Dashboard</h1>
+                  {/* Add dashboard content here */}
+                </div>
+              } />
+              <Route path="/about" element={
+                <div className="max-w-4xl mx-auto space-y-6">
+                  <h1 className="text-2xl font-bold">About</h1>
+                  <p>
+                    Child Welfare Indicators helps social workers and case managers track and analyze child welfare cases 
+                    by identifying key positive and negative indicators that may affect case outcomes.
+                  </p>
+                </div>
+              } />
+            </Routes>
+          </main>
         </div>
       </div>
     </Router>
