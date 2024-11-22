@@ -1,0 +1,49 @@
+{
+  "short_name": "Child Welfare Indicators",
+  "name": "Child Welfare Indicators",
+  "icons": [
+    {
+      "src": "rit-logo.png",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "rit-logo.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "rit-logo.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#3B82F6",
+  "background_color": "#ffffff",
+  "description": "An app for extracting and analyzing child welfare case indicators",
+  "orientation": "any",
+  "categories": ["social", "utilities"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "iarc_rating_id": "",
+  "screenshots": [
+    {
+      "src": "rit-logo.png",
+      "sizes": "1280x720",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Case",
+      "short_name": "New",
+      "description": "Start a new child welfare case",
+      "url": "/new-case",
+      "icons": [{ "src": "rit-logo.png", "sizes": "192x192" }]
+    }
+  ]
+}
