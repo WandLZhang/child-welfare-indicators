@@ -28,6 +28,7 @@ export const useCase = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [lastVisible, setLastVisible] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadCases = useCallback(async (loadMore = false) => {
     if (!user) return;
@@ -214,19 +215,50 @@ export const useCase = () => {
   }, []);
 
   const submitCase = useCallback(async (caseNarrative) => {
-    setLoading(true);
+    setIsSubmitting(true);
     setError(null);
+    
+    // Add user message to chat immediately
+    const userMessage = {
+      id: Date.now(),
+      content: caseNarrative,
+      sender: 'user',
+      timestamp: new Date()
+    };
+    setChatHistory(prev => [...prev, userMessage]);
+
     try {
       const result = await extractIndicators(caseNarrative);
-      // Process the result here, e.g., update state with the indicators
-      console.log(result);
-      // You might want to update your state here, for example:
-      // setCurrentCase(prev => ({ ...prev, indicators: result }));
+      
+      // Add system response to chat
+      const systemMessage = {
+        id: Date.now() + 1,
+        content: 'Analysis complete',
+        sender: 'system',
+        timestamp: new Date(),
+        indicators: {
+          positive: result.positive_indicators,
+          negative: result.negative_indicators,
+          prognosis: result.overall_prognosis
+        }
+      };
+      setChatHistory(prev => [...prev, systemMessage]);
+      
     } catch (err) {
       console.error('Error submitting case:', err);
       setError('Failed to analyze case. Please try again.');
+      
+      // Add error message to chat
+      const errorMessage = {
+        id: Date.now() + 1,
+        content: 'Failed to analyze case. Please try again.',
+        sender: 'system',
+        timestamp: new Date(),
+        error: true
+      };
+      setChatHistory(prev => [...prev, errorMessage]);
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   }, []);
 
@@ -236,6 +268,7 @@ export const useCase = () => {
     cases,
     loading,
     error,
+    isSubmitting,
     createCase,
     updateCase,
     selectCase,

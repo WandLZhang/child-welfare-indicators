@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useCase } from '../hooks/useCase';
 import { formatDistanceToNow } from 'date-fns';
-import { ChevronDown, ChevronUp, User, Bot } from 'lucide-react';
+import { ChevronDown, ChevronUp, User, Bot, Loader } from 'lucide-react';
 
 const ChatHistory = () => {
   const { user } = useAuth();
-  const { chatHistory, loadMoreHistory, hasMoreHistory } = useCase();
+  const { chatHistory, loadMoreHistory, hasMoreHistory, isSubmitting } = useCase();
   const [expandedMessages, setExpandedMessages] = useState({});
   const chatContainerRef = useRef(null);
 
@@ -87,6 +87,11 @@ const ChatHistory = () => {
             className="flex-grow overflow-y-auto space-y-4 mb-4"
           >
             {chatHistory.map(renderMessage)}
+            {isSubmitting && (
+              <div className="flex items-center justify-center p-4">
+                <Loader className="animate-spin h-6 w-6 text-blue-500" />
+              </div>
+            )}
           </div>
         </>
       ) : (

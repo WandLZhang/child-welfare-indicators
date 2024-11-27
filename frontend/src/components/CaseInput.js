@@ -9,13 +9,15 @@ const CaseInput = () => {
   const textareaRef = useRef(null);
   const recognitionRef = useRef(null);
 
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = '40px';
-      const scrollHeight = textareaRef.current.scrollHeight;
-      textareaRef.current.style.height = Math.min(scrollHeight, 200) + 'px';
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (input.trim() && !isSubmitting) {
+      // Add the user's message to chat history immediately
+      const userMessage = input.trim();
+      setInput('');
+      await submitCase(userMessage);
     }
-  }, [input]);
+  };
 
   useEffect(() => {
     if ('webkitSpeechRecognition' in window) {
@@ -43,14 +45,6 @@ const CaseInput = () => {
     setInput(e.target.value);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (input.trim() && !isSubmitting) {
-      await submitCase(input.trim());
-      setInput('');
-    }
-  };
-
   const toggleRecording = () => {
     if (isRecording) {
       recognitionRef.current?.stop();
@@ -75,16 +69,16 @@ const CaseInput = () => {
   return (
     <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4">
       <form onSubmit={handleSubmit} className="flex items-start gap-2">
-      <div className="flex items-center h-full">
-        <button
-          type="button"
-          onClick={handleGenerateSample}
-          className="h-10 px-4 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200 whitespace-nowrap"
-          disabled={isSubmitting}
-        >
-          Generate sample case
-        </button>
-      </div>
+        <div className="flex items-center h-full">
+          <button
+            type="button"
+            onClick={handleGenerateSample}
+            className="h-10 px-4 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isSubmitting}
+          >
+            Generate sample case
+          </button>
+        </div>
       <div className="flex items-center h-full">
         <button
           type="button"
