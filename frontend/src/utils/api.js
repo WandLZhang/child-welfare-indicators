@@ -103,15 +103,26 @@ export const deleteTemplate = async (templateId) => {
   }
 };
 
-// API function to extract indicators from a case narrative
+const API_URL = 'https://us-central1-wz-data-catalog-demo.cloudfunctions.net/child-welfare-indicators';
+
 export const extractIndicators = async (caseNarrative) => {
   try {
-    const idToken = await getIdToken();
-    const extractIndicatorsFunction = httpsCallable(functions, 'extractIndicators');
-    const result = await extractIndicatorsFunction({ caseNarrative, idToken });
-    return result.data;
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ case_info: caseNarrative }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return await response.json();
   } catch (error) {
-    handleApiError(error);
+    console.error('Error calling the child welfare indicators function:', error);
+    throw error;
   }
 };
 

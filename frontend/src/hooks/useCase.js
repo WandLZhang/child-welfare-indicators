@@ -15,6 +15,8 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../utils/firebase'; 
+import { ameliaCase } from '../utils/sampleCases';
+import { extractIndicators } from '../utils/api';
 
 const CASES_PER_PAGE = 10;
 
@@ -207,26 +209,25 @@ export const useCase = () => {
     }
   }, [currentCase, user]);
 
-  const generateSampleCase = useCallback(async () => {
-    // This is a placeholder function. In a real application, you might call an API
-    // or use a more sophisticated method to generate a sample case.
-    const sampleCase = {
-      childName: "Jane Doe",
-      age: 7,
-      situation: "Jane has been in foster care for 2 years. Her parents have completed a substance abuse program and are seeking reunification.",
-      positiveIndicators: [
-        "Parents completed substance abuse treatment",
-        "Regular visitation maintained",
-        "Child expresses desire to return home"
-      ],
-      negativeIndicators: [
-        "History of relapse",
-        "Unstable housing situation",
-        "Limited family support system"
-      ]
-    };
+  const generateSampleCase = useCallback(() => {
+    return ameliaCase;
+  }, []);
 
-    return sampleCase;
+  const submitCase = useCallback(async (caseNarrative) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await extractIndicators(caseNarrative);
+      // Process the result here, e.g., update state with the indicators
+      console.log(result);
+      // You might want to update your state here, for example:
+      // setCurrentCase(prev => ({ ...prev, indicators: result }));
+    } catch (err) {
+      console.error('Error submitting case:', err);
+      setError('Failed to analyze case. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   return {
@@ -240,6 +241,7 @@ export const useCase = () => {
     selectCase,
     loadCases,
     addChatMessage,
-    generateSampleCase
+    generateSampleCase,
+    submitCase,
   };
 };
