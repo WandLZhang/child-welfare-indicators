@@ -1,4 +1,3 @@
-// src/hooks/useCase.js
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { 
@@ -29,6 +28,8 @@ export const useCase = () => {
   const [error, setError] = useState(null);
   const [lastVisible, setLastVisible] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [positiveIndicators, setPositiveIndicators] = useState([]);
+  const [negativeIndicators, setNegativeIndicators] = useState([]);
 
   const loadCases = useCallback(async (loadMore = false) => {
     if (!user) return;
@@ -189,18 +190,22 @@ export const useCase = () => {
     try {
       const newMessage = {
         content: message,
-        sender: user.uid,
-        timestamp: serverTimestamp(),
+        sender: user ? user.uid : 'anonymous',
+        timestamp: new Date(),
         indicators
       };
 
-      const messagesRef = collection(db, 'cases', currentCase.id, 'messages');
-      const docRef = await addDoc(messagesRef, newMessage);
+      if (user) {
+        const messagesRef = collection(db, 'cases', currentCase.id, 'messages');
+        const docRef = await addDoc(messagesRef, newMessage);
+        newMessage.id = docRef.id;
+      } else {
+        newMessage.id = Date.now().toString();
+      }
 
-      const addedMessage = { id: docRef.id, ...newMessage, timestamp: new Date() };
-      setChatHistory(prevHistory => [...prevHistory, addedMessage]);
+      setChatHistory(prevHistory => [...prevHistory, newMessage]);
 
-      return addedMessage;
+      return newMessage;
     } catch (err) {
       console.error('Error adding chat message:', err);
       setError('Failed to send message. Please try again.');
@@ -220,19 +225,22 @@ export const useCase = () => {
     
     // Add user message to chat immediately
     const userMessage = {
-      id: Date.now(),
+      id: Date.now().toString(),
       content: caseNarrative,
-      sender: 'user',
+      sender: user ? user.uid : 'anonymous',
       timestamp: new Date()
     };
     setChatHistory(prev => [...prev, userMessage]);
 
+    console.log('Submitting case:', caseNarrative);
+
     try {
       const result = await extractIndicators(caseNarrative);
+      console.log('API Response:', result);
       
       // Add system response to chat
       const systemMessage = {
-        id: Date.now() + 1,
+        id: (Date.now() + 1).toString(),
         content: 'Analysis complete',
         sender: 'system',
         timestamp: new Date(),
@@ -244,13 +252,22 @@ export const useCase = () => {
       };
       setChatHistory(prev => [...prev, systemMessage]);
       
+      // Update indicators
+      setPositiveIndicators(result.positive_indicators);
+      setNegativeIndicators(result.negative_indicators);
+      
+      console.log('Updated Indicators:', {
+        positive: result.positive_indicators,
+        negative: result.negative_indicators
+      });
+      
     } catch (err) {
       console.error('Error submitting case:', err);
       setError('Failed to analyze case. Please try again.');
       
       // Add error message to chat
       const errorMessage = {
-        id: Date.now() + 1,
+        id: (Date.now() + 1).toString(),
         content: 'Failed to analyze case. Please try again.',
         sender: 'system',
         timestamp: new Date(),
@@ -260,7 +277,7 @@ export const useCase = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, []);
+  }, [user]);
 
   return {
     currentCase,
@@ -269,6 +286,8 @@ export const useCase = () => {
     loading,
     error,
     isSubmitting,
+    positiveIndicators,
+    negativeIndicators,
     createCase,
     updateCase,
     selectCase,

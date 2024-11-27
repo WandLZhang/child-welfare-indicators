@@ -1,24 +1,19 @@
 import React from 'react';
-import { useCase } from '../hooks/useCase';
-import { useIndicators } from '../hooks/useIndicators';
-import { Plus, MessageSquare } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { Plus } from 'lucide-react';
 
-const Sidebar = ({ user }) => {
-  const { positiveIndicators, negativeIndicators, addIndicator } = useIndicators();
-  const { chatHistory } = useCase();
-
+const Sidebar = ({ user, positiveIndicators, negativeIndicators }) => {
   const renderIndicators = (indicators, type) => (
     <div className="mb-4">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-medium text-gray-700">{type}</h3>
-        <button
-          onClick={() => addIndicator({ type: type.toLowerCase() })}
-          className="text-blue-500 hover:text-blue-600"
-          aria-label={`Add ${type} indicator`}
-        >
-          <Plus size={14} />
-        </button>
+        {user && (
+          <button
+            className="text-blue-500 hover:text-blue-600"
+            aria-label={`Add ${type} indicator`}
+          >
+            <Plus size={14} />
+          </button>
+        )}
       </div>
       <div className="space-y-1">
         {indicators.map(indicator => (
@@ -26,42 +21,12 @@ const Sidebar = ({ user }) => {
             key={indicator.id}
             className="text-xs text-gray-600 py-1 px-2 bg-gray-50 rounded"
           >
-            {indicator.text}
+            {indicator.description} (Score: {indicator.score})
           </div>
         ))}
         {indicators.length === 0 && (
           <div className="text-xs text-gray-400 italic">
             No {type.toLowerCase()} indicators
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  const renderChatHistory = () => (
-    <div className="mt-6">
-      <h3 className="text-sm font-medium text-gray-700 mb-2">Case History</h3>
-      <div className="space-y-2">
-        {chatHistory.length > 0 ? (
-          chatHistory.map(chat => (
-            <div
-              key={chat.id}
-              className="text-xs bg-gray-50 p-2 rounded cursor-pointer hover:bg-gray-100"
-            >
-              <div className="flex items-center space-x-2">
-                <MessageSquare size={12} className="text-gray-400" />
-                <span className="text-gray-600 truncate">
-                  {chat.content.substring(0, 30)}...
-                </span>
-              </div>
-              <div className="text-gray-400 mt-1">
-                {formatDistanceToNow(new Date(chat.timestamp), { addSuffix: true })}
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="text-xs text-gray-400 italic">
-            No case history
           </div>
         )}
       </div>
@@ -89,7 +54,14 @@ const Sidebar = ({ user }) => {
         {renderIndicators(positiveIndicators, 'Positive')}
         {renderIndicators(negativeIndicators, 'Negative')}
       </div>
-      {user && renderChatHistory()}
+      {user && (
+        <div className="mt-6">
+          <h3 className="text-sm font-medium text-gray-700 mb-2">Case History</h3>
+          <div className="text-xs text-gray-400 italic">
+            No case history available
+          </div>
+        </div>
+      )}
     </aside>
   );
 };

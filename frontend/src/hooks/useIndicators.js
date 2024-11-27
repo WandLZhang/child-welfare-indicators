@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { 
   collection, 
@@ -15,7 +15,8 @@ import { db } from '../utils/firebase';
 
 export const useIndicators = (caseId) => {
   const { user } = useAuth();
-  const [indicators, setIndicators] = useState([]);
+  const [positiveIndicators, setPositiveIndicators] = useState([]);
+  const [negativeIndicators, setNegativeIndicators] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -37,7 +38,8 @@ export const useIndicators = (caseId) => {
         ...doc.data()
       }));
 
-      setIndicators(loadedIndicators);
+      setPositiveIndicators(loadedIndicators.filter(indicator => indicator.type === 'positive'));
+      setNegativeIndicators(loadedIndicators.filter(indicator => indicator.type === 'negative'));
     } catch (err) {
       console.error('Error loading indicators:', err);
       setError('Failed to load indicators. Please try again.');
@@ -50,7 +52,8 @@ export const useIndicators = (caseId) => {
     if (caseId) {
       loadIndicators();
     } else {
-      setIndicators([]);
+      setPositiveIndicators([]);
+      setNegativeIndicators([]);
     }
   }, [caseId, loadIndicators]);
 
@@ -71,7 +74,11 @@ export const useIndicators = (caseId) => {
       const docRef = await addDoc(collection(db, 'cases', caseId, 'indicators'), newIndicator);
       const addedIndicator = { id: docRef.id, ...newIndicator, createdAt: new Date(), updatedAt: new Date() };
       
-      setIndicators(prevIndicators => [addedIndicator, ...prevIndicators]);
+      if (addedIndicator.type === 'positive') {
+        setPositiveIndicators(prev => [addedIndicator, ...prev]);
+      } else {
+        setNegativeIndicators(prev => [addedIndicator, ...prev]);
+      }
       return addedIndicator;
     } catch (err) {
       console.error('Error adding indicator:', err);
@@ -95,11 +102,13 @@ export const useIndicators = (caseId) => {
         updatedAt: serverTimestamp()
       });
 
-      setIndicators(prevIndicators => 
+      const updateIndicators = (prevIndicators) =>
         prevIndicators.map(indicator => 
           indicator.id === indicatorId ? { ...indicator, ...updates, updatedAt: new Date() } : indicator
-        )
-      );
+        );
+
+      setPositiveIndicators(updateIndicators);
+      setNegativeIndicators(updateIndicators);
     } catch (err) {
       console.error('Error updating indicator:', err);
       setError('Failed to update indicator. Please try again.');
@@ -117,7 +126,8 @@ export const useIndicators = (caseId) => {
 
     try {
       await deleteDoc(doc(db, 'cases', caseId, 'indicators', indicatorId));
-      setIndicators(prevIndicators => prevIndicators.filter(indicator => indicator.id !== indicatorId));
+      setPositiveIndicators(prev => prev.filter(indicator => indicator.id !== indicatorId));
+      setNegativeIndicators(prev => prev.filter(indicator => indicator.id !== indicatorId));
     } catch (err) {
       console.error('Error removing indicator:', err);
       setError('Failed to remove indicator. Please try again.');
@@ -127,15 +137,12 @@ export const useIndicators = (caseId) => {
     }
   }, [user, caseId]);
 
-  const getIndicatorsByType = useCallback((type) => {
-    return indicators.filter(indicator => indicator.type === type);
-  }, [indicators]);
-
-  const positiveIndicators = useMemo(() => getIndicatorsByType('positive'), [getIndicatorsByType]);
-  const negativeIndicators = useMemo(() => getIndicatorsByType('negative'), [getIndicatorsByType]);
+  const setIndicators = useCallback((positive, negative) => {
+    setPositiveIndicators(positive);
+    setNegativeIndicators(negative);
+  }, []);
 
   return {
-    indicators,
     positiveIndicators,
     negativeIndicators,
     loading,
@@ -143,6 +150,7 @@ export const useIndicators = (caseId) => {
     addIndicator,
     updateIndicator,
     removeIndicator,
-    loadIndicators
+    loadIndicators,
+    setIndicators
   };
 };

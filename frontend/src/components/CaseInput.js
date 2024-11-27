@@ -1,21 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Mic, Send, X } from 'lucide-react';
-import { useCase } from '../hooks/useCase';
 
-const CaseInput = () => {
+const CaseInput = ({ onSubmit, isSubmitting, generateSampleCase }) => {
   const [input, setInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
-  const { submitCase, isSubmitting, generateSampleCase } = useCase();
   const textareaRef = useRef(null);
   const recognitionRef = useRef(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (input.trim() && !isSubmitting) {
-      // Add the user's message to chat history immediately
-      const userMessage = input.trim();
-      setInput('');
-      await submitCase(userMessage);
+      try {
+        await onSubmit(input.trim());
+        setInput('');
+      } catch (error) {
+        console.error('Error submitting case:', error);
+      }
     }
   };
 
@@ -79,16 +79,16 @@ const CaseInput = () => {
             Generate sample case
           </button>
         </div>
-      <div className="flex items-center h-full">
-        <button
-          type="button"
-          onClick={toggleRecording}
-          className={`h-10 w-10 flex items-center justify-center rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-200 ${
-            isRecording ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'
-          }`}
-        >
-          {isRecording ? <X size={20} /> : <Mic size={20} />}
-        </button>
+        <div className="flex items-center h-full">
+          <button
+            type="button"
+            onClick={toggleRecording}
+            className={`h-10 w-10 flex items-center justify-center rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-200 ${
+              isRecording ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'
+            }`}
+          >
+            {isRecording ? <X size={20} /> : <Mic size={20} />}
+          </button>
         </div>
         <div className="flex-grow relative flex items-center">
           <textarea
@@ -103,13 +103,13 @@ const CaseInput = () => {
           />
         </div>
         <div className="flex items-center h-full">
-        <button
-          type="submit"
-          className="h-10 w-10 flex items-center justify-center bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-200"
-          disabled={!input.trim() || isSubmitting}
-        >
-          <Send size={20} />
-        </button>
+          <button
+            type="submit"
+            className="h-10 w-10 flex items-center justify-center bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!input.trim() || isSubmitting}
+          >
+            <Send size={20} />
+          </button>
         </div>
       </form>
     </div>
