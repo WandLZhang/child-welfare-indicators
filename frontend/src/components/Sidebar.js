@@ -1,27 +1,24 @@
 import React from 'react';
-import { Plus } from 'lucide-react';
 
-const Sidebar = ({ user, positiveIndicators, negativeIndicators }) => {
+const Sidebar = ({ positiveIndicators, negativeIndicators }) => {
   const renderIndicators = (indicators, type) => (
     <div className="mb-4">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-medium text-gray-700">{type}</h3>
-        {user && (
-          <button
-            className="text-blue-500 hover:text-blue-600"
-            aria-label={`Add ${type} indicator`}
-          >
-            <Plus size={14} />
-          </button>
-        )}
       </div>
       <div className="space-y-1">
         {indicators.map(indicator => (
           <div
             key={indicator.id}
-            className="text-xs text-gray-600 py-1 px-2 bg-gray-50 rounded"
+            className={`text-xs py-1 px-2 rounded cursor-pointer relative group ${
+              type === 'Positive' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            }`}
+            title={indicator.description}
           >
-            {indicator.description} (Score: {indicator.score})
+            {indicator.category}
+            <span className="invisible group-hover:visible absolute left-0 top-full mt-1 p-2 bg-gray-800 text-white text-xs rounded z-10 w-48">
+              {indicator.description}
+            </span>
           </div>
         ))}
         {indicators.length === 0 && (
@@ -33,8 +30,11 @@ const Sidebar = ({ user, positiveIndicators, negativeIndicators }) => {
     </div>
   );
 
+  const totalIndicators = positiveIndicators.length + negativeIndicators.length;
+  const positivePercentage = totalIndicators > 0 ? (positiveIndicators.length / totalIndicators) * 100 : 50;
+
   return (
-    <aside className="w-64 bg-white p-4 pt-16 border-r border-gray-200 h-screen overflow-y-auto">
+    <aside className="w-64 bg-white p-4 border-r border-gray-200 overflow-y-auto h-[calc(100vh-4rem)]">
       <div className="mb-4">
         <h2 className="text-base font-semibold text-gray-900 mb-4">Case Indicators</h2>
         <div className="mb-4">
@@ -42,26 +42,16 @@ const Sidebar = ({ user, positiveIndicators, negativeIndicators }) => {
             <span>Positive ({positiveIndicators.length})</span>
             <span>Negative ({negativeIndicators.length})</span>
           </div>
-          <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-red-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-green-500"
-              style={{
-                width: `${(positiveIndicators.length / (positiveIndicators.length + negativeIndicators.length)) * 100 || 0}%`
-              }}
+              className="h-full bg-green-200"
+              style={{ width: `${positivePercentage}%` }}
             />
           </div>
         </div>
         {renderIndicators(positiveIndicators, 'Positive')}
         {renderIndicators(negativeIndicators, 'Negative')}
       </div>
-      {user && (
-        <div className="mt-6">
-          <h3 className="text-sm font-medium text-gray-700 mb-2">Case History</h3>
-          <div className="text-xs text-gray-400 italic">
-            No case history available
-          </div>
-        </div>
-      )}
     </aside>
   );
 };

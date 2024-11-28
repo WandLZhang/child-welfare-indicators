@@ -7,6 +7,13 @@ const CaseInput = ({ onSubmit, isSubmitting, generateSampleCase }) => {
   const textareaRef = useRef(null);
   const recognitionRef = useRef(null);
 
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [input]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (input.trim() && !isSubmitting) {
@@ -67,29 +74,16 @@ const CaseInput = ({ onSubmit, isSubmitting, generateSampleCase }) => {
   };
 
   return (
-    <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4">
-      <form onSubmit={handleSubmit} className="flex items-start gap-2">
-        <div className="flex items-center h-full">
-          <button
-            type="button"
-            onClick={handleGenerateSample}
-            className="h-10 px-4 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={isSubmitting}
-          >
-            Generate sample case
-          </button>
-        </div>
-        <div className="flex items-center h-full">
-          <button
-            type="button"
-            onClick={toggleRecording}
-            className={`h-10 w-10 flex items-center justify-center rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-200 ${
-              isRecording ? 'bg-red-500 text-white' : 'bg-blue-500 text-white'
-            }`}
-          >
-            {isRecording ? <X size={20} /> : <Mic size={20} />}
-          </button>
-        </div>
+    <div className="border-t border-gray-200 p-4">
+      <form onSubmit={handleSubmit} className="flex items-center space-x-2">
+        <button
+          type="button"
+          onClick={handleGenerateSample}
+          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed h-10"
+          disabled={isSubmitting}
+        >
+          Generate sample case
+        </button>
         <div className="flex-grow relative flex items-center">
           <textarea
             ref={textareaRef}
@@ -97,20 +91,19 @@ const CaseInput = ({ onSubmit, isSubmitting, generateSampleCase }) => {
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             placeholder="Enter case details here..."
-            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none min-h-[40px] max-h-[200px] overflow-y-auto"
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none overflow-hidden"
             disabled={isSubmitting}
             rows={1}
+            style={{ minHeight: '40px', maxHeight: '200px' }}
           />
         </div>
-        <div className="flex items-center h-full">
-          <button
-            type="submit"
-            className="h-10 w-10 flex items-center justify-center bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={!input.trim() || isSubmitting}
-          >
-            <Send size={20} />
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed h-10 w-10 flex items-center justify-center"
+          disabled={!input.trim() || isSubmitting}
+        >
+          <Send size={20} />
+        </button>
       </form>
     </div>
   );
