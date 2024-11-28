@@ -75,7 +75,7 @@ const CaseInput = ({ onSubmit, isSubmitting, generateSampleCase }) => {
 
   return (
     <div className="border-t border-gray-200 p-4">
-      <form onSubmit={handleSubmit} className="flex items-end space-x-2">
+      <form onSubmit={handleSubmit} className="flex items-start space-x-2">
         <button
           type="button"
           onClick={handleGenerateSample}
