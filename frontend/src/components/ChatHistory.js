@@ -13,9 +13,9 @@ const ChatHistory = ({ chatHistory, isSubmitting }) => {
   const renderIndicators = (indicators) => {
     return (
       <div className="mt-2 space-y-1">
-        {indicators.prognosis && (
+        {indicators.overall_prognosis && (
           <div className="text-sm font-semibold">
-            Overall Prognosis: {indicators.prognosis.score.toFixed(2)} - {indicators.prognosis.assessment}
+            Overall Prognosis: {indicators.overall_prognosis.assessment}
           </div>
         )}
       </div>
