@@ -11,8 +11,20 @@ export const useCase = () => {
   const [negativeIndicators, setNegativeIndicators] = useState([]);
   const [overallPrognosis, setOverallPrognosis] = useState(null);
 
-  const generateSampleCase = useCallback(() => {
-    return ameliaCase;
+  const generateSampleCase = useCallback(async () => {
+    try {
+      const response = await fetch('https://us-central1-wz-data-catalog-demo.cloudfunctions.net/child-welfare-generateCase', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+      return data.case;
+    } catch (error) {
+      console.error('Error generating sample case:', error);
+      throw error;
+    }
   }, []);
 
   const submitCase = useCallback(async (caseNarrative) => {
