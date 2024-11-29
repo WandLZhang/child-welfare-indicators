@@ -33,6 +33,17 @@ export const useCase = () => {
       const result = await extractIndicators(caseNarrative);
       console.log('API Response:', result);
       
+      // Process indicators with weights and scores
+      const processIndicators = (indicators) => indicators.map(indicator => ({
+        ...indicator,
+        id: Math.random().toString(36).substr(2, 9),
+        weight: 1, // Default weight
+        score: 1  // Default score 
+      }));
+
+      const processedPositiveIndicators = processIndicators(result.positive_indicators);
+      const processedNegativeIndicators = processIndicators(result.negative_indicators);
+
       // Add system response to chat
       const systemMessage = {
         id: (Date.now() + 1).toString(),
@@ -40,20 +51,20 @@ export const useCase = () => {
         sender: 'system',
         timestamp: new Date(),
         indicators: {
-          positive: result.positive_indicators,
-          negative: result.negative_indicators,
+          positive: processedPositiveIndicators,
+          negative: processedNegativeIndicators,
           prognosis: result.overall_prognosis
         }
       };
       setChatHistory(prev => [...prev, systemMessage]);
       
       // Update indicators
-      setPositiveIndicators(result.positive_indicators);
-      setNegativeIndicators(result.negative_indicators);
+      setPositiveIndicators(processedPositiveIndicators);
+      setNegativeIndicators(processedNegativeIndicators);
       
       console.log('Updated Indicators:', {
-        positive: result.positive_indicators,
-        negative: result.negative_indicators
+        positive: processedPositiveIndicators,
+        negative: processedNegativeIndicators
       });
       
     } catch (err) {
@@ -74,6 +85,16 @@ export const useCase = () => {
     }
   }, []);
 
+  const updateIndicator = useCallback((id, updates) => {
+    const updateIndicatorList = (list) =>
+      list.map(indicator =>
+        indicator.id === id ? { ...indicator, ...updates } : indicator
+      );
+
+    setPositiveIndicators(prevIndicators => updateIndicatorList(prevIndicators));
+    setNegativeIndicators(prevIndicators => updateIndicatorList(prevIndicators));
+  }, []);
+
   return {
     chatHistory,
     loading,
@@ -83,5 +104,6 @@ export const useCase = () => {
     negativeIndicators,
     generateSampleCase,
     submitCase,
+    updateIndicator,
   };
 };

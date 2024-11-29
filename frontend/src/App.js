@@ -13,7 +13,8 @@ function App() {
     submitCase,
     generateSampleCase,
     positiveIndicators,
-    negativeIndicators
+    negativeIndicators,
+    updateIndicator
   } = useCase();
 
   return (
@@ -23,6 +24,7 @@ function App() {
         <Sidebar 
           positiveIndicators={positiveIndicators}
           negativeIndicators={negativeIndicators}
+          updateIndicator={updateIndicator}
         />
         <main className="flex-1 flex flex-col">
           <div className="flex-1 overflow-hidden flex flex-col">

@@ -2,11 +2,11 @@ import React from 'react';
 import { Plus, Trash2, Edit } from 'lucide-react';
 import { useIndicators } from '../hooks/useIndicators';
 
-const IndicatorList = () => {
-  const { positiveIndicators, negativeIndicators, addIndicator, removeIndicator, updateIndicator } = useIndicators();
+const IndicatorList = ({ positiveIndicators, negativeIndicators, updateIndicator }) => {
+  const { addIndicator, removeIndicator } = useIndicators();
 
   const handleAddIndicator = (type) => {
-    const newIndicator = { id: Date.now(), text: '', type, source: '' };
+    const newIndicator = { id: Date.now(), text: '', type, source: '', weight: 1, score: 1 };
     addIndicator(newIndicator);
   };
 
@@ -14,6 +14,10 @@ const IndicatorList = () => {
     if (window.confirm('Are you sure you want to remove this indicator?')) {
       removeIndicator(indicator);
     }
+  };
+
+  const handleUpdateIndicator = (id, field, value) => {
+    updateIndicator(id, { [field]: value });
   };
 
   const renderIndicators = (indicators, type) => (
@@ -32,22 +36,51 @@ const IndicatorList = () => {
         {indicators.map(indicator => (
           <div 
             key={indicator.id} 
-            className="flex items-center justify-between p-2 bg-gray-50 rounded group hover:bg-gray-100"
+            className="flex flex-col p-2 bg-gray-50 rounded group hover:bg-gray-100"
           >
-            <span className="text-sm text-gray-700">{indicator.text}</span>
-            <div className="hidden group-hover:flex space-x-2">
-              <button
-                onClick={() => updateIndicator({ ...indicator, text: prompt('Update indicator:', indicator.text) })}
-                className="text-blue-500 hover:text-blue-600"
-              >
-                <Edit size={14} />
-              </button>
-              <button
-                onClick={() => handleRemoveIndicator(indicator)}
-                className="text-red-500 hover:text-red-600"
-              >
-                <Trash2 size={14} />
-              </button>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm text-gray-700">{indicator.category}</span>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => handleUpdateIndicator(indicator.id, 'category', prompt('Update indicator category:', indicator.category))}
+                  className="text-blue-500 hover:text-blue-600"
+                >
+                  <Edit size={14} />
+                </button>
+                <button
+                  onClick={() => handleRemoveIndicator(indicator)}
+                  className="text-red-500 hover:text-red-600"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </div>
+            <div className="text-xs text-gray-600 mb-2">{indicator.description}</div>
+            <div className="flex justify-between items-center">
+              <div className="flex items-center space-x-2">
+                <label className="text-xs text-gray-500">Weight:</label>
+                <input
+                  type="number"
+                  value={indicator.weight}
+                  onChange={(e) => handleUpdateIndicator(indicator.id, 'weight', parseFloat(e.target.value))}
+                  className="w-16 text-xs border rounded px-1"
+                  min="0"
+                  max="10"
+                  step="0.1"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <label className="text-xs text-gray-500">Score:</label>
+                <input
+                  type="number"
+                  value={indicator.score}
+                  onChange={(e) => handleUpdateIndicator(indicator.id, 'score', parseFloat(e.target.value))}
+                  className="w-16 text-xs border rounded px-1"
+                  min="0"
+                  max="10"
+                  step="0.1"
+                />
+              </div>
             </div>
           </div>
         ))}
