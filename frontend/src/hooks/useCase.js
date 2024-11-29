@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react';
-import { ameliaCase } from '../utils/sampleCases';
 import { extractIndicators } from '../utils/api';
 
 export const useCase = () => {
@@ -7,11 +6,13 @@ export const useCase = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGeneratingSample, setIsGeneratingSample] = useState(false);
   const [positiveIndicators, setPositiveIndicators] = useState([]);
   const [negativeIndicators, setNegativeIndicators] = useState([]);
   const [overallPrognosis, setOverallPrognosis] = useState(null);
 
   const generateSampleCase = useCallback(async () => {
+    setIsGeneratingSample(true);
     try {
       const response = await fetch('https://us-central1-wz-data-catalog-demo.cloudfunctions.net/child-welfare-generateCase', {
         method: 'POST',
@@ -20,9 +21,11 @@ export const useCase = () => {
         },
       });
       const data = await response.json();
+      setIsGeneratingSample(false);
       return data.case;
     } catch (error) {
       console.error('Error generating sample case:', error);
+      setIsGeneratingSample(false);
       throw error;
     }
   }, []);
@@ -118,6 +121,7 @@ export const useCase = () => {
     loading,
     error,
     isSubmitting,
+    isGeneratingSample,
     positiveIndicators,
     negativeIndicators,
     overallPrognosis,

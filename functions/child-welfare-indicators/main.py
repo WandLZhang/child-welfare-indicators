@@ -109,6 +109,13 @@ def extract_indicators(case_info):
         cleaned_response = re.sub(r'```json\s*|\s*```', '', response.text).strip()
         cleaned_response = re.sub(r'"\s*\+?\s*"', '', cleaned_response)
         
+        # Escape backslashes
+        cleaned_response = cleaned_response.replace('\\', '\\\\')
+        
+        # Remove any trailing commas before closing braces or brackets
+        cleaned_response = re.sub(r',\s*}', '}', cleaned_response)
+        cleaned_response = re.sub(r',\s*]', ']', cleaned_response)
+        
         result = json.loads(cleaned_response)
         
         # Add a score of 1 to each indicator
@@ -117,6 +124,11 @@ def extract_indicators(case_info):
                 indicator['score'] = 1
         
         return result
+    except json.JSONDecodeError as json_error:
+        logger.error(f"JSON decode error: {str(json_error)}")
+        logger.error(f"Error at position {json_error.pos}: {cleaned_response[max(0, json_error.pos-20):json_error.pos+20]}")
+        logger.error(f"Full cleaned response: {cleaned_response}")
+        logger.error(traceback.format_exc())
     except Exception as e:
         logger.error(f"Error processing response: {str(e)}")
         logger.error(f"Response text: {response.text}")

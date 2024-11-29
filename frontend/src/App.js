@@ -9,7 +9,8 @@ import './App.css';
 function App() {
   const { 
     chatHistory, 
-    isSubmitting, 
+    isSubmitting,
+    isGeneratingSample, 
     submitCase,
     generateSampleCase,
     positiveIndicators,
@@ -35,6 +36,7 @@ function App() {
             <CaseInput 
               onSubmit={submitCase}
               isSubmitting={isSubmitting}
+              isGeneratingSample={isGeneratingSample}
               generateSampleCase={generateSampleCase}
             />
           </div>
