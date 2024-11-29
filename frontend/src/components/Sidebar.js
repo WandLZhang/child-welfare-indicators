@@ -102,8 +102,8 @@ const Sidebar = ({ positiveIndicators, negativeIndicators, updateIndicator }) =>
   const positivePercentage = totalIndicators > 0 ? (positiveIndicators.length / totalIndicators) * 100 : 50;
 
   return (
-    <aside className="w-64 bg-white p-4 border-r border-gray-200 overflow-y-auto h-[calc(100vh-4rem)] fixed">
-      <div className="mb-4">
+    <aside className="w-64 bg-white border-r border-gray-200 flex flex-col h-full">
+      <div className="p-4 flex-1 overflow-y-auto">
         <h2 className="text-base font-semibold text-gray-900 mb-4">Case Indicators</h2>
         <div className="mb-4">
           <div className="flex justify-between text-xs text-gray-500 mb-1">

@@ -18,15 +18,15 @@ function App() {
   } = useCase();
 
   return (
-    <div className="App">
+    <div className="App flex flex-col h-screen">
       <Header />
-      <div className="layout-container">
+      <div className="flex-1 flex overflow-hidden pt-4">
         <Sidebar 
           positiveIndicators={positiveIndicators}
           negativeIndicators={negativeIndicators}
           updateIndicator={updateIndicator}
         />
-        <main className="main-content">
+        <main className="flex-1 flex flex-col overflow-hidden px-4 pt-10">
           <div className="flex-1 overflow-hidden flex flex-col">
             <ChatHistory 
               chatHistory={chatHistory}
