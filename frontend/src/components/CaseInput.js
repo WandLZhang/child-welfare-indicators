@@ -1,18 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Mic, Send, X } from 'lucide-react';
+import { Send, Loader } from 'lucide-react';
 
 const CaseInput = ({ onSubmit, isSubmitting, generateSampleCase }) => {
   const [input, setInput] = useState('');
-  const [isRecording, setIsRecording] = useState(false);
   const textareaRef = useRef(null);
-  const recognitionRef = useRef(null);
 
   useEffect(() => {
-  if (textareaRef.current) {
-    textareaRef.current.style.height = 'auto';
-    textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-  }
-}, [input]);
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [input]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,39 +24,8 @@ const CaseInput = ({ onSubmit, isSubmitting, generateSampleCase }) => {
     }
   };
 
-  useEffect(() => {
-    if ('webkitSpeechRecognition' in window) {
-      const recognition = new window.webkitSpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      
-      recognition.onstart = () => {
-        setInput('');
-      };
-
-      recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        setInput(transcript);
-      };
-
-      recognition.onerror = () => setIsRecording(false);
-      recognition.onend = () => setIsRecording(false);
-
-      recognitionRef.current = recognition;
-    }
-  }, []);
-
   const handleInputChange = (e) => {
     setInput(e.target.value);
-  };
-
-  const toggleRecording = () => {
-    if (isRecording) {
-      recognitionRef.current?.stop();
-    } else {
-      recognitionRef.current?.start();
-    }
-    setIsRecording(!isRecording);
   };
 
   const handleGenerateSample = async () => {
@@ -102,7 +69,7 @@ const CaseInput = ({ onSubmit, isSubmitting, generateSampleCase }) => {
           className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={!input.trim() || isSubmitting}
         >
-          <Send size={20} />
+          {isSubmitting ? <Loader className="animate-spin" size={20} /> : <Send size={20} />}
         </button>
       </form>
     </div>

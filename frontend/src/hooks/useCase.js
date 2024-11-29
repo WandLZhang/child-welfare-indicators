@@ -9,6 +9,7 @@ export const useCase = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [positiveIndicators, setPositiveIndicators] = useState([]);
   const [negativeIndicators, setNegativeIndicators] = useState([]);
+  const [overallPrognosis, setOverallPrognosis] = useState(null);
 
   const generateSampleCase = useCallback(() => {
     return ameliaCase;
@@ -44,6 +45,9 @@ export const useCase = () => {
       const processedPositiveIndicators = processIndicators(result.positive_indicators);
       const processedNegativeIndicators = processIndicators(result.negative_indicators);
 
+      // Extract overall prognosis
+      const processedOverallPrognosis = result.overall_prognosis.assessment;
+
       // Add system response to chat
       const systemMessage = {
         id: (Date.now() + 1).toString(),
@@ -53,18 +57,20 @@ export const useCase = () => {
         indicators: {
           positive: processedPositiveIndicators,
           negative: processedNegativeIndicators,
-          prognosis: result.overall_prognosis
+          overall_prognosis: processedOverallPrognosis
         }
       };
       setChatHistory(prev => [...prev, systemMessage]);
       
-      // Update indicators
+      // Update indicators and overall prognosis
       setPositiveIndicators(processedPositiveIndicators);
       setNegativeIndicators(processedNegativeIndicators);
+      setOverallPrognosis(processedOverallPrognosis);
       
       console.log('Updated Indicators:', {
         positive: processedPositiveIndicators,
-        negative: processedNegativeIndicators
+        negative: processedNegativeIndicators,
+        overall_prognosis: processedOverallPrognosis
       });
       
     } catch (err) {
@@ -102,6 +108,7 @@ export const useCase = () => {
     isSubmitting,
     positiveIndicators,
     negativeIndicators,
+    overallPrognosis,
     generateSampleCase,
     submitCase,
     updateIndicator,

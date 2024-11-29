@@ -1,9 +1,10 @@
-import React from 'react';
-import { Plus, Trash2, Edit } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, Trash2, Edit, ChevronDown, ChevronUp } from 'lucide-react';
 import { useIndicators } from '../hooks/useIndicators';
 
 const IndicatorList = ({ positiveIndicators, negativeIndicators, updateIndicator }) => {
   const { addIndicator, removeIndicator } = useIndicators();
+  const [expandedIndicators, setExpandedIndicators] = useState({});
 
   const handleAddIndicator = (type) => {
     const newIndicator = { id: Date.now(), text: '', type, source: '', weight: 1, score: 1 };
@@ -18,6 +19,10 @@ const IndicatorList = ({ positiveIndicators, negativeIndicators, updateIndicator
 
   const handleUpdateIndicator = (id, field, value) => {
     updateIndicator(id, { [field]: value });
+  };
+
+  const toggleDescription = (id) => {
+    setExpandedIndicators(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   const renderIndicators = (indicators, type) => (
@@ -55,7 +60,27 @@ const IndicatorList = ({ positiveIndicators, negativeIndicators, updateIndicator
                 </button>
               </div>
             </div>
-            <div className="text-xs text-gray-600 mb-2">{indicator.description}</div>
+            <div className="text-xs text-gray-600 mb-2">
+              {expandedIndicators[indicator.id] 
+                ? indicator.description 
+                : `${indicator.description.slice(0, 100)}...`}
+            </div>
+            <button 
+              onClick={() => toggleDescription(indicator.id)}
+              className="text-xs text-blue-500 hover:text-blue-600 flex items-center self-start mb-2"
+            >
+              {expandedIndicators[indicator.id] ? (
+                <>
+                  <ChevronUp size={14} className="mr-1" />
+                  Hide
+                </>
+              ) : (
+                <>
+                  <ChevronDown size={14} className="mr-1" />
+                  See more
+                </>
+              )}
+            </button>
             <div className="flex justify-between items-center">
               <div className="flex items-center space-x-2">
                 <label className="text-xs text-gray-500">Weight:</label>

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { Info, ChevronDown, ChevronUp } from 'lucide-react';
 
 const Sidebar = ({ positiveIndicators, negativeIndicators, updateIndicator }) => {
-  const [overallScore, setOverallScore] = useState(5); // Start at neutral
+  const [overallScore, setOverallScore] = useState(5);
+  const [expandedIndicators, setExpandedIndicators] = useState({});
 
   const calculateOverallScore = (positiveIndicators, negativeIndicators) => {
     const calculateWeightedSum = (indicators) => 
@@ -13,12 +15,9 @@ const Sidebar = ({ positiveIndicators, negativeIndicators, updateIndicator }) =>
     const totalWeight = [...positiveIndicators, ...negativeIndicators]
       .reduce((sum, indicator) => sum + indicator.weight, 0);
 
-    if (totalWeight === 0) return 5; // Return neutral if no indicators
+    if (totalWeight === 0) return 5;
 
-    // Calculate raw score between -1 and 1
     const rawScore = (positiveSum - negativeSum) / totalWeight;
-    
-    // Normalize to 0-10 scale
     return (((rawScore + 1) / 2) * 10).toFixed(2);
   };
 
@@ -26,6 +25,10 @@ const Sidebar = ({ positiveIndicators, negativeIndicators, updateIndicator }) =>
     const newOverallScore = calculateOverallScore(positiveIndicators, negativeIndicators);
     setOverallScore(newOverallScore);
   }, [positiveIndicators, negativeIndicators]);
+
+  const toggleDescription = (id) => {
+    setExpandedIndicators(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   const renderIndicators = (indicators, type) => (
     <div className="mb-4">
@@ -63,7 +66,27 @@ const Sidebar = ({ positiveIndicators, negativeIndicators, updateIndicator }) =>
                 />
               </div>
             </div>
-            <p className="text-xs text-gray-600">{indicator.description}</p>
+            {expandedIndicators[indicator.id] && (
+              <p className="text-xs text-gray-600 mt-1">
+                {indicator.description}
+              </p>
+            )}
+            <button
+              onClick={() => toggleDescription(indicator.id)}
+              className="text-xs text-blue-600 mt-1 hover:underline flex items-center"
+            >
+              {expandedIndicators[indicator.id] ? (
+                <>
+                  <ChevronUp size={14} className="mr-1" />
+                  Hide
+                </>
+              ) : (
+                <>
+                  <ChevronDown size={14} className="mr-1" />
+                  See more
+                </>
+              )}
+            </button>
           </div>
         ))}
         {indicators.length === 0 && (
@@ -79,7 +102,7 @@ const Sidebar = ({ positiveIndicators, negativeIndicators, updateIndicator }) =>
   const positivePercentage = totalIndicators > 0 ? (positiveIndicators.length / totalIndicators) * 100 : 50;
 
   return (
-    <aside className="w-64 bg-white p-4 border-r border-gray-200 overflow-y-auto h-[calc(100vh-4rem)]">
+    <aside className="w-64 bg-white p-4 border-r border-gray-200 overflow-y-auto h-[calc(100vh-4rem)] fixed">
       <div className="mb-4">
         <h2 className="text-base font-semibold text-gray-900 mb-4">Case Indicators</h2>
         <div className="mb-4">
@@ -95,7 +118,15 @@ const Sidebar = ({ positiveIndicators, negativeIndicators, updateIndicator }) =>
           </div>
         </div>
         <div className="mb-4">
-          <h3 className="text-sm font-medium text-gray-700">Overall Prognosis Score</h3>
+          <div className="flex items-center">
+            <h3 className="text-sm font-medium text-gray-700 mr-1">Overall Prognosis Score</h3>
+            <div className="relative group">
+              <Info size={16} className="text-gray-400 cursor-help" />
+              <div className="absolute left-full ml-2 w-64 bg-white p-2 rounded shadow-lg text-xs text-gray-600 hidden group-hover:block">
+                The overall prognosis score is calculated based on the weight and score of each indicator. Weight and score range from 0 to 10. A higher score indicates a more positive prognosis.
+              </div>
+            </div>
+          </div>
           <div className="text-2xl font-bold text-blue-600">{overallScore}</div>
         </div>
         {renderIndicators(positiveIndicators, 'Positive')}
